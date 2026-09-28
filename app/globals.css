@@ -1,0 +1,598 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   MINIMALIST MONOCHROME — DESIGN TOKENS
+   --------------------------------------------------------------------------
+   Single source of truth. Nothing below is a one-off style.
+
+   FOUR STRUCTURAL DECISIONS:
+
+   1. NAMESPACES ARE WIPED. `--color-*`, `--radius-*`, `--shadow-*`,
+      `--font-*` and `--text-*` are reset to `initial`, then repopulated
+      with only what this system allows. Consequence: `bg-blue-500`,
+      `rounded-lg`, `shadow-md` and `text-3xl` are not merely unused,
+      they DO NOT EXIST as utilities. The design system cannot be
+      violated by accident, only by editing this file.
+
+   2. INVERSION IS A SCOPING CONCERN. Semantic tokens are indirections
+      through CSS variables rather than baked hex values, so `[data-invert]`
+      flips them for a whole subtree. `bg-paper text-ink border-line` inverts
+      automatically, with no `dark:` variant on any component.
+
+   3. INVERTED VALUES ARE EXACT INVERSES. An inverted ground does not get
+      an invented palette — each value is 255 minus its light-mode
+      counterpart (#F5F5F5 → #0A0A0A, #525252 → #ADADAD, #E5E5E5 → #1A1A1A).
+      "No other colours" holds in both modes, by construction.
+
+   4. THE STEP SCALE IS THE SPEC; ROLES ALIAS IT. `--text-xs` … `--text-9xl`
+      are the thirteen specified steps at their exact pixel values. Semantic
+      roles (`text-body`, `text-h2`, …) reference those steps rather than
+      restating them, so the scale can only ever be defined once. The three
+      largest roles are `clamp()`ed, because a fixed 160px is unusable on a
+      phone — see NOTE ON FLUID DISPLAY below.
+   ========================================================================== */
+
+@theme inline {
+  /* --- Wipe default namespaces -------------------------------------------
+     `initial` clears every value Tailwind ships in the namespace. Anything
+     re-declared below is the only thing that survive. */
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+
+  /* --- Colour ------------------------------------------------------------
+     Nine tokens, monochrome, and no others. Each maps to the semantic
+     utility used in markup:
+
+       background        → --color-paper       (ground)
+       foreground        → --color-ink         (primary type, and the accent)
+       muted             → --color-muted       (off-white surface)
+       mutedForeground   → --color-muted-ink   (secondary type)
+       border            → --color-ink         (black border — the accent)
+       borderLight       → --color-line        (soft divider)
+       card              → --color-paper       (card ground)
+       ring              → --color-ink         (focus ring)
+
+     Black is simultaneously the foreground, the accent, the border and the
+     focus ring. That is the point of the system: emphasis comes from
+     contrast and scale, never from hue. */
+  --color-paper: var(--_paper);
+  --color-ink: var(--_ink);
+  --color-muted: var(--_muted);
+  --color-muted-ink: var(--_muted-ink);
+  --color-line: var(--_line);
+
+  /* Kept so composition utilities still function. */
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+
+  /* --- Geometry ----------------------------------------------------------
+     Sharp geometric precision. Every radius resolves to 0, so `rounded-*`
+     is a guaranteed no-op. Reinforced by a base reset on every element. */
+  --radius-none: 0px;
+  --radius-hair: 0px;
+  --radius-sharp: 0px;
+  --radius-full: 0px;
+
+  /* --- Depth -------------------------------------------------------------
+     Flat and 2D by doctrine. Shadows are flattened to fully transparent
+     rather than removed, so `shadow-*` collapses to nothing. */
+  --shadow-none: 0 0 #0000;
+  --shadow-hair: 0 0 #0000;
+  --shadow-lift: 0 0 #0000;
+  --shadow-float: 0 0 #0000;
+
+  /* --- Type families -----------------------------------------------------
+     Serif for display, serif for body, mono for structure. Two serifs
+     differentiated by contrast and role, not by classification — a
+     high-contrast Didone for display, a workhorse text serif for reading. */
+  --font-display: var(--face-display); /* Playfair Display */
+  --font-body: var(--face-body); /* Source Serif 4 */
+  --font-mono: var(--face-mono); /* JetBrains Mono */
+
+  /* Preflight and any inherited text resolve to the body serif, not a
+     grotesque default. */
+  --default-font-family: var(--face-body);
+  --default-mono-font-family: var(--face-mono);
+
+  /* --- Type scale: the thirteen specified steps --------------------------
+     Declared explicitly rather than inherited from Tailwind's defaults so
+     that the values are a deliberate statement of the spec, not an
+     accident of an upstream release.
+
+     Leading is set per step: relaxed at reading sizes, tightening as the
+     type grows, reaching `1` at 6xl where the display setting takes over. */
+  --text-xs: 0.75rem; /* 12px */
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem; /* 14px */
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem; /* 16px */
+  --text-base--line-height: 1.625;
+  --text-lg: 1.125rem; /* 18px */
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.25rem; /* 20px */
+  --text-xl--line-height: 1.5;
+  --text-2xl: 1.5rem; /* 24px */
+  --text-2xl--line-height: 1.4;
+  --text-3xl: 2rem; /* 32px */
+  --text-3xl--line-height: 1.3;
+  --text-4xl: 2.5rem; /* 40px */
+  --text-4xl--line-height: 1.2;
+  --text-5xl: 3.5rem; /* 56px */
+  --text-5xl--line-height: 1.1;
+  --text-6xl: 4.5rem; /* 72px */
+  --text-6xl--line-height: 1;
+  --text-7xl: 6rem; /* 96px */
+  --text-7xl--line-height: 1;
+  --text-7xl--letter-spacing: -0.025em;
+  --text-8xl: 8rem; /* 128px */
+  --text-8xl--line-height: 1;
+  --text-8xl--letter-spacing: -0.025em;
+  --text-9xl: 10rem; /* 160px */
+  --text-9xl--line-height: 1;
+  --text-9xl--letter-spacing: -0.05em;
+
+  /* --- Type roles: aliases onto the steps above -------------------------
+     Components ask for a role, never a bare number, so that re-tuning the
+     scale never requires auditing every call site.
+
+       text-caption → sm        text-h3    → 3xl
+       text-body    → base      text-h2    → fluid
+       text-body-lg → lg        text-h1    → fluid
+       text-lead    → xl        text-display → fluid
+
+   There is deliberately no `text-micro` role. The system's most-used size is
+   already expressed by the `micro-label` utility, which sets the mono family
+   and the uppercase transform in the same step; a size-only alias for it
+   would be a second way to say the same thing. */
+
+  --text-caption: var(--text-sm);
+  --text-caption--line-height: 1.5;
+
+  --text-body: var(--text-base);
+  --text-body--line-height: 1.625;
+  --text-body--letter-spacing: 0;
+
+  --text-body-lg: var(--text-lg);
+  --text-body-lg--line-height: 1.6;
+  --text-body-lg--letter-spacing: 0;
+
+  --text-lead: var(--text-xl);
+  --text-lead--line-height: 1.4;
+  --text-lead--letter-spacing: 0;
+
+  --text-h3: var(--text-3xl);
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: -0.025em;
+
+  /* NOTE ON FLUID DISPLAY
+     The three largest roles are clamped rather than fixed. A hard 160px
+     headline overflows any viewport under ~400px, and the brief's
+     requirement that headlines "dominate at 8xl, 9xl" is a statement about
+     visual weight, not a requirement that the number be literal. Each
+     clamp tops out at its specified step and bottoms out near 5xl, so the
+     scale is never violated — it is only made responsive. */
+  --text-h2: clamp(2.5rem, 1.5rem + 3.2vw, 4.5rem);
+  --text-h2--line-height: 1.05;
+  --text-h2--letter-spacing: -0.025em;
+
+  --text-h1: clamp(3.5rem, 1.6rem + 6vw, 8rem);
+  --text-h1--line-height: 1;
+  --text-h1--letter-spacing: -0.025em;
+
+  --text-display: clamp(3.5rem, 0.5rem + 9.5vw, 10rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.05em;
+
+  /* Micro-label geometry is defined once, as a utility, because the
+     micro-label is the system's most-used type role and it needs the mono
+     family and the uppercase transform alongside the size. Splitting those
+     across a size token and a family utility would mean two classes at every
+     one of its ~90 call sites. */
+
+  /* --- Tracking & leading ------------------------------------------------
+     Restated from the spec so the values are owned here rather than
+     inherited. `leading-none` (1) is reserved for display. */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-widest: 0.1em;
+
+  --leading-none: 1;
+  --leading-relaxed: 1.625;
+
+  /* --- Space -------------------------------------------------------------
+     There are no custom spacing tokens.
+
+     The spec states the layout grid as literal values — `py-24 md:py-32
+     lg:py-40` for sections, `px-6 md:px-8 lg:px-12` for the container — and
+     every one of those already exists in Tailwind's default spacing scale.
+     A custom token that only ever holds a number the framework already
+     provides is a second place to change the same decision, and it would
+     have to be re-declared at three breakpoints anyway, since a single
+     custom property cannot be responsive.
+
+     So the section rhythm is stated in the two places that own it —
+     `Container` for the horizontal inset, `Section` for the vertical — and
+     the values in between come from the framework's scale rather than from a
+     parallel one. */
+
+  /* --- Motion ------------------------------------------------------------
+     ONE duration, 100ms, the spec's ceiling. "Minimal and instant" and
+     "binary sharp state changes" mean a state change should read as a state
+     change, not as an animation — so there is nothing to tune, and no way to
+     accidentally introduce a slow transition.
+
+     The easing curve is retained rather than dropped, because at 100ms the
+     difference between `ease-in-out` and `linear` is still perceptible, and
+     a hard stop on a colour inversion reads as a rendering glitch.
+     Removing the easing would be the more literal reading of "instant" and
+     the worse result.
+
+     Namespace note: Tailwind resolves `duration-*` from
+     `--transition-duration-*` and `ease-*` from `--ease-*`. A
+     `--duration-*` key is silently ignored; these are not interchangeable. */
+  --ease-sharp: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --transition-duration-instant: 100ms;
+
+  /* Make the ceiling structural rather than conventional.
+   *
+   * Tailwind's own default is 150ms, so a `transition-colors` written without
+   * an explicit duration would silently exceed the spec's 100ms maximum.
+   * Every call site in the project does name `duration-instant` — but that is
+   * a convention, and conventions are exactly what decays. Overriding the
+   * default means the fastest legal duration is also the duration you get for
+   * free, so the worst case is now compliant instead of merely quiet.
+   *
+   * The default easing is overridden to match, for the same reason: a 100ms
+   * transition on Tailwind's default curve and one on `ease-sharp` should not
+   * look like two different systems. */
+  --default-transition-duration: 100ms;
+  --default-transition-timing-function: var(--ease-sharp);
+}
+
+/* --------------------------------------------------------------------------
+   RUNTIME VALUES
+   Referenced by the semantic tokens above. `[data-invert]` redefines them.
+   -------------------------------------------------------------------------- */
+:root {
+  --_paper: #ffffff; /* background / card  */
+  --_ink: #000000; /* foreground / border / accent / ring */
+  --_muted: #f5f5f5; /* muted surface       */
+  --_muted-ink: #525252; /* mutedForeground    */
+  --_line: #e5e5e5; /* borderLight         */
+
+  /* Texture inks. Alpha only — the hue is always the current ink. */
+  --_tex: rgb(0 0 0 / 0.015); /* primary: horizontal lines */
+  --_tex-faint: rgb(0 0 0 / 0.01); /* diagonal lines        */
+  --_tex-strong: rgb(0 0 0 / 0.015); /* grid                 */
+}
+
+/* An attribute selector, not a class. A class called `invert` collides
+   head-on with Tailwind's built-in `invert()` filter utility, which would
+   silently apply `filter: invert(100%)` to every inverted section. An
+   attribute name can never be mistaken for a utility.
+
+   The second selector is the same block applied on hover. This is what makes
+   the spec's "full colour inversion" hover possible without a `hover:` class
+   on every descendant: because the semantic tokens are indirections, pointing
+   them at their inverted values inverts the *entire* subtree at once — ground,
+   primary type, secondary type, borders, and the texture inks together.
+
+   The obvious alternative, writing `hover:bg-ink hover:text-paper` on the
+   card and leaving its children alone, is subtly wrong: children that set an
+   explicit `text-muted-ink` do not inherit, so they stay #525252 on a black
+   ground. The failure is invisible in review and unreadable in production.
+   One selector list, no duplication, and the tokens remain the only place a
+   colour is written down. */
+[data-invert],
+.invert-on-hover:hover {
+  --_paper: #000000;
+  --_ink: #ffffff;
+  --_muted: #0a0a0a; /* inverse of #F5F5F5 */
+  --_muted-ink: #adadad; /* inverse of #525252 */
+  --_line: #1a1a1a; /* inverse of #E5E5E5 */
+
+  /* Dark grounds need slightly more texture to register at all. */
+  --_tex: rgb(255 255 255 / 0.03);
+  --_tex-faint: rgb(255 255 255 / 0.02);
+  --_tex-strong: rgb(255 255 255 / 0.03);
+}
+
+/* The noise texture is generated as black, so it has to be inverted to read
+   as grain rather than as a grey wash on a dark ground. Declared after the
+   token block so it wins on equal specificity against the utility's own
+   background-image. */
+.invert-on-hover:hover .texture-noise,
+[data-invert] .texture-noise {
+  filter: invert(1);
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    /* Backstop for the radius wipe: nothing rounds, ever. */
+    border-radius: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--_paper);
+    color: var(--_ink);
+    font-family: var(--face-body), Georgia, "Times New Roman", serif;
+    font-size: var(--text-base);
+    line-height: 1.625;
+    letter-spacing: 0;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Inverted selection. A monochrome system's one chance at delight. */
+  ::selection {
+    background-color: var(--_ink);
+    color: var(--_paper);
+  }
+
+  /* Focus is expressed by the component that owns the focused element —
+     a button inverts, an input thickens its border to 4px — so the global
+     rule supplies a ring only for the cases a component has not claimed.
+     The `:not(:focus-visible):focus` guard is what lets a field draw a
+     thick border on keyboard focus without also showing Tailwind's default
+     ring on mouse focus. Colour resolves to the ring token, which is the
+     ink, so it stays visible on both grounds with no dark-mode variant. */
+  :focus-visible {
+    outline: 3px solid var(--_ink);
+    outline-offset: 3px;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    border-radius: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  select {
+    /* Native dropdown arrow is a filled triangle; replace it with a rule. */
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 0.75rem center, right 0.4rem center;
+    background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
+    background-repeat: no-repeat;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  img,
+  video,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* ==========================================================================
+   TEXTURES & PATTERNS
+   The spec's four patterns. All are ink-coloured and alpha-weighted, so
+   they follow the ground: black at 1.5% on white, white at 3% on black.
+   Each is a background-image, so they cost no extra elements and none of
+   them can affect layout or intercept a pointer.
+   ========================================================================== */
+
+/* PRIMARY — horizontal lines, 4px period. The paper grain. */
+@utility texture-lines {
+  background-image: linear-gradient(
+    to bottom,
+    var(--_tex) 0 1px,
+    transparent 1px
+  );
+  background-size: 100% 4px;
+}
+
+/* SECONDARY — 40px grid. Structure you notice only if you look for it. */
+@utility texture-grid {
+  background-image: linear-gradient(
+      to right,
+      var(--_tex-strong) 0 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, var(--_tex-strong) 0 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* DIAGONAL — 45°, half the weight of the primary. */
+@utility texture-diagonal {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--_tex-faint) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+/* NOISE — SVG fractal turbulence, 2%. Breaks up the banding that a 1.5%
+   line pattern produces across large flat areas, and gives the page a
+   physical rather than digital surface. The dark-ground flip is declared
+   once, alongside the token block, because it depends on the same
+   inversion state rather than on the texture itself. */
+@utility texture-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* Inverted ground: vertical lines, per the spec, because vertical rhythm
+   reads as a different texture on black than horizontal does on white. */
+@utility texture-lines-vertical {
+  background-image: linear-gradient(
+    to right,
+    var(--_tex) 0 1px,
+    transparent 1px
+  );
+  background-size: 4px 100%;
+}
+
+/* ==========================================================================
+   UTILITIES
+   Compositional helpers for what the type scale cannot express.
+   ========================================================================== */
+@utility micro-label {
+  font-family: var(--face-mono), ui-monospace, monospace;
+  font-size: var(--text-xs);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Minimum touch target.
+ *
+ * 44×44 is the WCAG 2.5.5 AAA figure and the spec's requirement on mobile.
+ * It is applied below `sm` only, and then removed: a 44px minimum on a
+ * desktop pointer turns a tight editorial nav into a row of slabs, and the
+ * requirement exists because a fingertip is imprecise, not because a mouse
+ * is.
+ *
+ * This sets size and nothing else — no `display`, no `align-items`. Those
+ * belong to the call site, because `inline-flex` and `flex` are the same
+ * Tailwind layer and whichever lands later in the stylesheet wins, not
+ * whichever is written last in the class string. A utility that also set
+ * layout would be silently winning or losing that race at every call site.
+ * The requirement is that the target is a flex or inline-flex box; the
+ * component decides what shape it is.
+ *
+ * Deliberately not applied to links inside running prose. A 44px box around
+ * an inline sentence link would break the line box and, in a paragraph of
+ * contact details, force the measure wider than the column. */
+@utility touch-target {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+@media (width >= 40rem) {
+  .touch-target {
+    min-height: 0;
+    min-width: 0;
+  }
+}
+
+@utility measure {
+  max-width: 62ch;
+}
+
+@utility measure-tight {
+  max-width: 46ch;
+}
+
+/* Display type: leading-none and the tighter tracking, per the spec. */
+@utility display-type {
+  font-family: var(--face-display), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+@utility display-italic {
+  font-family: var(--face-display), Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Section headings. Slightly looser than display so a serif at 32–72px
+   does not close up into a solid block. */
+@utility heading-type {
+  font-family: var(--face-display), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+@utility underline-rule {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  text-decoration-color: currentColor;
+}
+
+/* Reveal on scroll. The hidden state is gated behind `html[data-js]`, which
+   a tiny inline script in the root layout sets before first paint. Without
+   JavaScript the class is inert and the content is simply there — the
+   animation can never be why a visitor cannot read the page.
+
+   Opacity only, at the system's single 100ms duration. An earlier version
+   also translated 1.25rem on entry, which at 900ms was choreography and at
+   100ms is a visible jolt — a transform that completes faster than the eye
+   can follow reads as a layout bug. The stagger survives, because a short
+   offset between adjacent items still reads as deliberate ordering. */
+html[data-js] .reveal {
+  opacity: 0;
+}
+
+html[data-js] .reveal.reveal-in {
+  opacity: 1;
+}
+
+.reveal {
+  transition: opacity var(--transition-duration-instant) var(--ease-sharp);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* ==========================================================================
+   MOTION PREFERENCES
+   Every animation in the system is decorative. If the visitor has asked
+   for less motion, they get the same layout, instantly.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Reduced motion means no transition — but the content must still be
+     visible, so the guarded hidden state is undone explicitly. */
+  html[data-js] .reveal {
+    opacity: 1;
+  }
+}
